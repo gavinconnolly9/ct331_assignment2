@@ -20,7 +20,7 @@
 
 
 ;Part C:
-(define (cout_top_level lst)
+(define (count_top_level lst)
   (length lst)
 )
 
@@ -43,7 +43,8 @@
 (define (count_instances_tr el lst)
   (cond
     [(null? lst) 0] ;if list is empty then return 0
-    [(= el (car lst)) (+ 1 (count_instances_tr el (cdr lst)))];if el is equal to first item in list add 1 to the count_instances of cdr
+    ;if el is equal to first item in list add 1 to the count_instances of cdr
+    [(= el (car lst)) (+ 1 (count_instances_tr el (cdr lst)))]
     ;else add nothing
     [else (count_instances_tr el(cdr lst)) ]
   )

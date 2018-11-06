@@ -1,124 +1,89 @@
-(define (node middle left right)
-  (list middle left right)
+#lang racket
+(define (binary_tree_leaf value )
+  (list '() value '() )
 )
 
-(define (root node)
-  (car node)
-)
-
-(define (left_subtree node)
-  (cadr node)
-)
-
-(define (right_subtree node)
-  (caddr node)
-)
-
-;A
+(define (binary_tree_node left_node value right_node)
+  (list left_node value right_node))
 (define (traverse tree)
-  (if(null? tree)
-    '()
-    (begin
-      (traverse (left_subtree tree))
-      (display (root tree))(newline)
-      (traverse (right_subtree tree))
-    )
-  )
-)
-
-
-;B
-(define (search x tree)
-  (if (null? tree)
-    #f
-    (let ((current (root tree)))
-      (cond
-        [(< x current)(search x (left_subtree tree))]
-        [(> x current)(search x (right_subtree tree))]
-        [(equal? x current) #t ]
+  (cond
+    [(empty? tree) #t]
+    [else
+     (begin
+         (traverse (car tree))
+         (printf" ~a "(cadr tree))
+         (traverse (caddr tree))
       )
-    )
+    ]    
   )
 )
 
-
-;C
-(define (insert x tree)
-  (if (null? tree)
-   (node x '() '())
-   (let ((current (root tree)))
-      (cond
-        [(< x current)(node current (insert x (left_subtree tree)) (right_subtree tree) )]
-        [(> x current)(node current (left_subtree tree) (insert x (right_subtree tree)))]
-        [(equal? x current)(display "Item Found")]
-      )
+(define test_tree
+  (binary_tree_node
+    (binary_tree_node
+    (binary_tree_leaf 1)
+    3
+    (binary_tree_leaf 6)
+    )
+    8
+    (binary_tree_node
+    (binary_tree_leaf 9)
+    10
+    (binary_tree_leaf 11)
     )
   )
 )
-
-
-;D
-(define (insert_list list tree)
-  (if (empty? list) tree
-    (insert_list (cdr list) (insert (car list) tree)))
-)
-
-
-;E
-(define (t_sort list)
-  (traverse (insert_list list '() ))
-)
-
-
-;F
-(define (insert_list_desc x tree)
-  (if (null? tree)
-    (node x '() '())
-    (let ((current (root tree)))
-      (cond
-        [(> x current)(node current (insert_list_desc x (left_subtree tree)) (right_subtree tree) )]
-        [(< x current)(node current (left_subtree tree) (insert_list_desc x (right_subtree tree)))]
-        [(equal? x current)(display "Item Found")]
-      )
-    )
+(define (search_tree tree value)
+  (cond
+    [(null? tree) #f]
+    [(equal? value (cadr tree))]
+    [(> (cadr tree) value)(search_tree (car tree) value)]
+    [(< (cadr tree) value)(search_tree (caddr tree) value)]
   )
 )
-
-(define (insert_list_ld x tree)
-  (if (null? tree)
-    (node x '() '())
-    (let ((current (root tree)))
-      (cond
-        [(< (remainder x 10)(remainder current 10))(node current (insert_list_ld x (left_subtree tree)) (right_subtree tree) )]
-        [(> (remainder x 10)(remainder current 10))(node current (left_subtree tree) (insert_list_ld x (right_subtree tree)))]
-        [(equal? x current)(display "Item Found")]
-      )
-    )
+(define (insert_tree tree value)
+  (display tree)
+  (display "\n")
+  (cond
+    [(empty? tree)(binary_tree_leaf value)]
+    [(= (cadr tree) value) tree]
+    [(> (cadr tree) value)(list (insert_tree (car tree) value) (cadr tree) (caddr tree))]
+    [(< (cadr tree) value)(list (car tree) (cadr tree) (insert_tree (caddr tree) value) )]        
   )
 )
-
-(define (insert_list_d list tree)
-  (if (empty? list) tree
-    (insert_list_d (cdr list) (insert_list_desc (car list) tree)))
+(define (insert_list_tree tree list)
+  (cond
+    [(empty? list) tree]
+    [else (insert_list_tree (insert_tree tree (car list)) (cdr list))]
+   )
 )
 
-(define (insert_list_last_digit list tree)
-  (if (empty? list) tree
-    (insert_list_last_digit (cdr list) (insert_list_ld (car list) tree)))
+
+(define (ascending_sort list)
+  (traverse(insert_list_tree '() list))
+)
+(define (insert_descend_tree tree value)
+  (cond
+    [(empty? tree)(binary_tree_leaf value)]
+    [(= (cadr tree) value) tree]
+    [(< (cadr tree) value)(list (insert_descend_tree (caddr tree) value) (cadr tree) (car tree))]
+    [(> (cadr tree) value)(list (caddr tree) (cadr tree) (insert_descend_tree (car tree) value) )]        
+  )
+)
+(define (insert_list_descend_tree tree list)
+  (cond
+    [(empty? list) tree]
+    [else (insert_list_descend_tree (insert_descend_tree tree (car list)) (cdr list))]
+   )
+)
+(define (descending_sort list)
+  (traverse(insert_list_descend_tree '() list))
 )
 
-(define (descending list)
-  (traverse (insert_list_d list '()))
+(define (sort_tree func list)
+  (func list)
 )
 
-(define (ascending list)
-  (traverse (insert_list list '()))
-)
-
-(define (ascending_last_digit list)
-  (traverse (insert_list_last_digit list '()))
-)
-
-(define (higher_order_sort list function)
-  (function list)
+(define test_list
+  (list 3 6 1 7)
 )
